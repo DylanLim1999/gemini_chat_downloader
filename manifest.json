@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Gemini 对话导出",
+  "version": "2.0",
+  "description": "一键导出 Gemini AI 对话为 Markdown 格式，支持自动加载完整对话历史。",
+  "permissions": ["tabs", "clipboardWrite"],
+  "action": {
+    "default_title": "Gemini 对话导出",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://gemini.google.com/*"],
+      "js": ["turndown.js", "turndown-plugin-gfm.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

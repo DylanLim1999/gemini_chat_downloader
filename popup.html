@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 300px;
+        min-height: 200px;
+        font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto,
+          "Helvetica Neue", sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 16px;
+      }
+
+      .container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05),
+          inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+        .logo {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            object-fit: contain;
+        }
+
+      .title {
+        font-size: 16px;
+        font-weight: 600;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .button-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 14px 16px;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.15) 0%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        pointer-events: none;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #4285f4 0%, #1a73e8 100%);
+        color: white;
+        box-shadow: 0 4px 16px rgba(66, 133, 244, 0.35);
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(66, 133, 244, 0.45);
+      }
+
+      .btn-primary:active:not(:disabled) {
+        transform: translateY(0);
+      }
+
+      .btn-secondary {
+        background: linear-gradient(135deg, #34a853 0%, #1e8e3e 100%);
+        color: white;
+        box-shadow: 0 4px 16px rgba(52, 168, 83, 0.35);
+      }
+
+      .btn-secondary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 168, 83, 0.45);
+      }
+
+      .btn-secondary:active:not(:disabled) {
+        transform: translateY(0);
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+      }
+
+      .btn-icon {
+        font-size: 18px;
+      }
+
+      /* 进度条区域 */
+      .progress-section {
+        display: none;
+        margin-top: 16px;
+        padding: 16px;
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+        border-radius: 12px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+      }
+
+      .progress-section.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 12px;
+        color: #5f6368;
+      }
+
+      .progress-bar-container {
+        width: 100%;
+        height: 6px;
+        background: rgba(102, 126, 234, 0.15);
+        border-radius: 3px;
+        overflow: hidden;
+      }
+
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        border-radius: 3px;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+
+      .progress-bar.indeterminate {
+        width: 30%;
+        animation: indeterminate 1.5s ease-in-out infinite;
+      }
+
+      @keyframes indeterminate {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(400%);
+        }
+      }
+
+      /* 状态提示 */
+      .status {
+        margin-top: 16px;
+        padding: 12px;
+        border-radius: 10px;
+        font-size: 13px;
+        text-align: center;
+        display: none;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .status.active {
+        display: block;
+      }
+
+      .status.success {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        color: #1e8e3e;
+        border: 1px solid rgba(30, 142, 62, 0.2);
+      }
+
+      .status.error {
+        background: linear-gradient(135deg, #fce8e6 0%, #f8d7da 100%);
+        color: #d93025;
+        border: 1px solid rgba(217, 48, 37, 0.2);
+      }
+
+      .status.warning {
+        background: linear-gradient(135deg, #fef7e0 0%, #feefc3 100%);
+        color: #e37400;
+        border: 1px solid rgba(227, 116, 0, 0.2);
+      }
+
+      .status-icon {
+        font-size: 16px;
+        margin-right: 6px;
+      }
+
+      /* 分隔线 */
+      .divider {
+        display: flex;
+        align-items: center;
+        margin: 16px 0;
+        color: #9aa0a6;
+        font-size: 11px;
+      }
+
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(0, 0, 0, 0.1),
+          transparent
+        );
+      }
+
+      .divider span {
+        padding: 0 12px;
+      }
+
+      /* 选项区域 */
+      .options {
+        margin-top: 12px;
+      }
+
+      .option-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        transition: background 0.2s;
+      }
+
+      .option-item:hover {
+        background: #f1f3f4;
+      }
+
+      .option-label {
+        font-size: 13px;
+        color: #3c4043;
+      }
+
+      .toggle {
+        position: relative;
+        width: 40px;
+        height: 22px;
+        background: #dadce0;
+        border-radius: 11px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .toggle.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .toggle::after {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 18px;
+        height: 18px;
+        background: white;
+        border-radius: 50%;
+        transition: transform 0.3s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .toggle.active::after {
+        transform: translateX(18px);
+      }
+
+      /* 取消按钮 */
+      .btn-cancel {
+        margin-top: 10px;
+        background: transparent;
+        color: #5f6368;
+        box-shadow: none;
+        border: 1px solid #dadce0;
+      }
+
+      .btn-cancel:hover:not(:disabled) {
+        background: #f1f3f4;
+        transform: none;
+        box-shadow: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+            <img src="download-icon.png" alt="logo" class="logo">
+        <span class="title">Gemini 对话导出</span>
+      </div>
+
+      <div class="button-group">
+        <button id="downloadBtn" class="btn btn-primary">
+          <span class="btn-icon">📥</span>
+          <span>下载 Markdown</span>
+        </button>
+
+        <button id="copyBtn" class="btn btn-secondary">
+          <span class="btn-icon">📋</span>
+          <span>复制到剪贴板</span>
+        </button>
+      </div>
+
+      <div class="options">
+        <div class="option-item">
+          <span class="option-label">加载完整对话</span>
+          <div
+            id="fullLoadToggle"
+            class="toggle active"
+            title="自动滚动加载所有历史对话"
+          ></div>
+        </div>
+      </div>
+
+      <div id="progressSection" class="progress-section">
+        <div class="progress-label">
+          <span id="progressText">正在加载对话...</span>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress-bar-container">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <button id="cancelBtn" class="btn btn-cancel">
+          <span>取消</span>
+        </button>
+      </div>
+
+      <div id="status" class="status"></div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
