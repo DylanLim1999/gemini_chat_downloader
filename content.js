@@ -244,16 +244,59 @@
 
     turns.forEach((turn, index) => {
       if (turn.tagName.toLowerCase() === "user-query") {
+        // 提取用户文本
         const queryText = turn.querySelector(".query-text")?.innerText;
-        if (queryText) {
-          markdownContent += `## User\n\n${queryText}\n\n---\n\n`;
+        
+        // 提取用户上传的图片
+        const userImages = turn.querySelectorAll('img');
+        let imageMarkdown = '';
+        userImages.forEach((img, imgIndex) => {
+          const src = img.src || img.getAttribute('data-src');
+          const alt = img.alt || `用户上传图片 ${imgIndex + 1}`;
+          if (src && !src.startsWith('data:image/svg')) {
+            imageMarkdown += `![${alt}](${src})\n\n`;
+          }
+        });
+        
+        if (queryText || imageMarkdown) {
+          markdownContent += `## User\n\n`;
+          if (imageMarkdown) {
+            markdownContent += imageMarkdown;
+          }
+          if (queryText) {
+            markdownContent += `${queryText}\n\n`;
+          }
+          markdownContent += `---\n\n`;
         }
       } else if (turn.tagName.toLowerCase() === "model-response") {
+        // 提取 Gemini 回复的 markdown 内容
         const responseEl = turn.querySelector(".markdown");
-        if (responseEl) {
-          const htmlContent = responseEl.innerHTML;
-          const formattedText = turndownService.turndown(htmlContent);
-          markdownContent += `## Gemini\n\n${formattedText.trim()}\n\n---\n\n`;
+        
+        // 也提取回复中可能存在的图片（生成的图片等）
+        const responseImages = turn.querySelectorAll('img:not(.markdown img)');
+        let extraImageMarkdown = '';
+        responseImages.forEach((img, imgIndex) => {
+          const src = img.src || img.getAttribute('data-src');
+          const alt = img.alt || `Gemini 生成图片 ${imgIndex + 1}`;
+          if (src && !src.startsWith('data:image/svg')) {
+            extraImageMarkdown += `![${alt}](${src})\n\n`;
+          }
+        });
+        
+        if (responseEl || extraImageMarkdown) {
+          markdownContent += `## Gemini\n\n`;
+          
+          if (responseEl) {
+            const htmlContent = responseEl.innerHTML;
+            const formattedText = turndownService.turndown(htmlContent);
+            markdownContent += `${formattedText.trim()}\n\n`;
+          }
+          
+          if (extraImageMarkdown) {
+            markdownContent += extraImageMarkdown;
+          }
+          
+          markdownContent += `---\n\n`;
         }
       }
     });
